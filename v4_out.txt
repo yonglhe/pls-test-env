@@ -1,0 +1,604 @@
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # azurerm_lb.main will be created
+  + resource "azurerm_lb" "main" {
+      + id                   = (known after apply)
+      + location             = "northeurope"
+      + name                 = "dev-pls-provider-load-balancer"
+      + private_ip_address   = (known after apply)
+      + private_ip_addresses = (known after apply)
+      + public_ip_address_id = (known after apply)
+      + resource_group_name  = "dev-pls-provider-rg"
+      + sku                  = "Standard"
+      + sku_tier             = "Regional"
+      + subnet_id            = (known after apply)
+
+      + frontend_ip_configuration {
+          + gateway_load_balancer_frontend_ip_configuration_id = (known after apply)
+          + id                                                 = (known after apply)
+          + inbound_nat_rules                                  = (known after apply)
+          + load_balancer_rules                                = (known after apply)
+          + name                                               = "internal"
+          + outbound_rules                                     = (known after apply)
+          + private_ip_address                                 = (known after apply)
+          + private_ip_address_allocation                      = "Dynamic"
+          + private_ip_address_version                         = (known after apply)
+          + public_ip_prefix_id                                = (known after apply)
+          + subnet_id                                          = (known after apply)
+        }
+    }
+
+  # azurerm_lb_backend_address_pool.main will be created
+  + resource "azurerm_lb_backend_address_pool" "main" {
+      + backend_ip_configurations = (known after apply)
+      + id                        = (known after apply)
+      + inbound_nat_rules         = (known after apply)
+      + load_balancing_rules      = (known after apply)
+      + loadbalancer_id           = (known after apply)
+      + name                      = "backend-pool"
+      + outbound_rules            = (known after apply)
+    }
+
+  # azurerm_lb_probe.http will be created
+  + resource "azurerm_lb_probe" "http" {
+      + id                  = (known after apply)
+      + interval_in_seconds = 15
+      + load_balancer_rules = (known after apply)
+      + loadbalancer_id     = (known after apply)
+      + name                = "dev-pls-http-probe"
+      + number_of_probes    = 2
+      + port                = 80
+      + probe_threshold     = 1
+      + protocol            = "Http"
+      + request_path        = "/"
+    }
+
+  # azurerm_lb_rule.http will be created
+  + resource "azurerm_lb_rule" "http" {
+      + backend_address_pool_ids       = (known after apply)
+      + backend_port                   = 80
+      + disable_outbound_snat          = false
+      + enable_floating_ip             = (known after apply)
+      + enable_tcp_reset               = (known after apply)
+      + floating_ip_enabled            = (known after apply)
+      + frontend_ip_configuration_id   = (known after apply)
+      + frontend_ip_configuration_name = "internal"
+      + frontend_port                  = 80
+      + id                             = (known after apply)
+      + idle_timeout_in_minutes        = 4
+      + load_distribution              = "Default"
+      + loadbalancer_id                = (known after apply)
+      + name                           = "dev-pls-http-rule"
+      + probe_id                       = (known after apply)
+      + protocol                       = "Tcp"
+      + tcp_reset_enabled              = (known after apply)
+    }
+
+  # azurerm_linux_virtual_machine.consumer will be created
+  + resource "azurerm_linux_virtual_machine" "consumer" {
+      + admin_username                                         = "consumer-user"
+      + allow_extension_operations                             = (known after apply)
+      + bypass_platform_safety_checks_on_user_schedule_enabled = false
+      + computer_name                                          = (known after apply)
+      + disable_password_authentication                        = true
+      + disk_controller_type                                   = (known after apply)
+      + extensions_time_budget                                 = "PT1H30M"
+      + id                                                     = (known after apply)
+      + location                                               = "northeurope"
+      + max_bid_price                                          = -1
+      + name                                                   = "dev-pls-consumer-vm"
+      + network_interface_ids                                  = (known after apply)
+      + os_managed_disk_id                                     = (known after apply)
+      + patch_assessment_mode                                  = (known after apply)
+      + patch_mode                                             = (known after apply)
+      + platform_fault_domain                                  = -1
+      + priority                                               = "Regular"
+      + private_ip_address                                     = (known after apply)
+      + private_ip_addresses                                   = (known after apply)
+      + provision_vm_agent                                     = (known after apply)
+      + public_ip_address                                      = (known after apply)
+      + public_ip_addresses                                    = (known after apply)
+      + resource_group_name                                    = "dev-pls-consumer-rg"
+      + size                                                   = "Standard_B2s"
+      + virtual_machine_id                                     = (known after apply)
+      + vm_agent_platform_updates_enabled                      = (known after apply)
+
+      + admin_ssh_key {
+          + public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDJsT/I8W/+cgFtmmfWXoQx8ld6r9vT/6c/2Zfr1ryyk0UOKF5ljyw2yjiPCFMBZ4kE9kHxeqD1SSbUoKGgNirbPz002dkVlVCAyYldGZB0T2FhWmFgrq0IQSUMWQfO+OMgMutjm5MHrIC8njPoez6oRnMlxE3l7S3Wu5xb5lP3K4QSuYF0Eue1eEYjs0TluuajOvYL/+VooSCTVl6UzGr9ivX8ka77PGmchhlTS21L7HPgQoIEjItd8gYk4g+tKqd0ByGaSiYZsNTSUVp6GThg6QEGSohbMg0ODPUDrGhRFkjyreXAR8uC0oFKQmIPfSxdAyyU03tf01EqTD/nTGxGO1dmkcpRm0LU98W6H8/cuPdAFRN3XVdSyWFjRDlsHN+vGaiv/qvRUotALV8t3fye0YyW4qiROB5hW5wUlGvcM5jMiyZ9HzzqBvd8OsxbVGQ5RGDu1Zh58S2KORKBtbki0yET6g/i3W3EEr7NZ+zqqutvWL/EsblZwnaTRB2CQLoivFFJJnyHE5lZgMuV6o1Is1di3T4vP8Ei4Q0fz5upTi15+zld9XCOhejFflX0y0mUJK1cztso/RJF2xb5NAWdU0aGkLvBFLFlLXjgVoIep7uMXSAPhx1p8v/16VkR0wqTAbPPLSqoVg6Q2QoIlMAD3+pn3nQX4wFKqfQ8slpw6w== yhe@5CG5233B44"
+          + username   = "consumer-user"
+        }
+
+      + os_disk {
+          + caching                   = "ReadWrite"
+          + disk_size_gb              = (known after apply)
+          + id                        = (known after apply)
+          + name                      = (known after apply)
+          + storage_account_type      = "Standard_LRS"
+          + write_accelerator_enabled = false
+        }
+
+      + source_image_reference {
+          + offer     = "0001-com-ubuntu-server-jammy"
+          + publisher = "Canonical"
+          + sku       = "22_04-lts-gen2"
+          + version   = "latest"
+        }
+
+      + termination_notification (known after apply)
+    }
+
+  # azurerm_linux_virtual_machine.provider will be created
+  + resource "azurerm_linux_virtual_machine" "provider" {
+      + admin_username                                         = "provider-user"
+      + allow_extension_operations                             = (known after apply)
+      + bypass_platform_safety_checks_on_user_schedule_enabled = false
+      + computer_name                                          = (known after apply)
+      + custom_data                                            = (sensitive value)
+      + disable_password_authentication                        = true
+      + disk_controller_type                                   = (known after apply)
+      + extensions_time_budget                                 = "PT1H30M"
+      + id                                                     = (known after apply)
+      + location                                               = "northeurope"
+      + max_bid_price                                          = -1
+      + name                                                   = "dev-pls-provider-vm"
+      + network_interface_ids                                  = (known after apply)
+      + os_managed_disk_id                                     = (known after apply)
+      + patch_assessment_mode                                  = (known after apply)
+      + patch_mode                                             = (known after apply)
+      + platform_fault_domain                                  = -1
+      + priority                                               = "Regular"
+      + private_ip_address                                     = (known after apply)
+      + private_ip_addresses                                   = (known after apply)
+      + provision_vm_agent                                     = (known after apply)
+      + public_ip_address                                      = (known after apply)
+      + public_ip_addresses                                    = (known after apply)
+      + resource_group_name                                    = "dev-pls-provider-rg"
+      + size                                                   = "Standard_B2s"
+      + virtual_machine_id                                     = (known after apply)
+      + vm_agent_platform_updates_enabled                      = (known after apply)
+
+      + admin_ssh_key {
+          + public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEznZGZ8YUrCLh76gBHdeLxJSfUffVVMpNeILOpYnZLD yhe@5CG5233B44"
+          + username   = "provider-user"
+        }
+
+      + os_disk {
+          + caching                   = "ReadWrite"
+          + disk_size_gb              = (known after apply)
+          + id                        = (known after apply)
+          + name                      = (known after apply)
+          + storage_account_type      = "Standard_LRS"
+          + write_accelerator_enabled = false
+        }
+
+      + source_image_reference {
+          + offer     = "0001-com-ubuntu-server-jammy"
+          + publisher = "Canonical"
+          + sku       = "22_04-lts-gen2"
+          + version   = "latest"
+        }
+
+      + termination_notification (known after apply)
+    }
+
+  # azurerm_network_interface.consumer_nic will be created
+  + resource "azurerm_network_interface" "consumer_nic" {
+      + accelerated_networking_enabled = false
+      + applied_dns_servers            = (known after apply)
+      + id                             = (known after apply)
+      + internal_domain_name_suffix    = (known after apply)
+      + ip_forwarding_enabled          = false
+      + location                       = "northeurope"
+      + mac_address                    = (known after apply)
+      + name                           = "dev-pls-consumer-nic"
+      + private_ip_address             = (known after apply)
+      + private_ip_addresses           = (known after apply)
+      + resource_group_name            = "dev-pls-consumer-rg"
+      + virtual_machine_id             = (known after apply)
+
+      + ip_configuration {
+          + gateway_load_balancer_frontend_ip_configuration_id = (known after apply)
+          + name                                               = "Internal"
+          + primary                                            = (known after apply)
+          + private_ip_address                                 = (known after apply)
+          + private_ip_address_allocation                      = "Dynamic"
+          + private_ip_address_version                         = "IPv4"
+          + public_ip_address_id                               = (known after apply)
+          + subnet_id                                          = (known after apply)
+        }
+    }
+
+  # azurerm_network_interface.provider_nic will be created
+  + resource "azurerm_network_interface" "provider_nic" {
+      + accelerated_networking_enabled = false
+      + applied_dns_servers            = (known after apply)
+      + id                             = (known after apply)
+      + internal_domain_name_suffix    = (known after apply)
+      + ip_forwarding_enabled          = false
+      + location                       = "northeurope"
+      + mac_address                    = (known after apply)
+      + name                           = "dev-pls-provider-nic"
+      + private_ip_address             = (known after apply)
+      + private_ip_addresses           = (known after apply)
+      + resource_group_name            = "dev-pls-provider-rg"
+      + virtual_machine_id             = (known after apply)
+
+      + ip_configuration {
+          + gateway_load_balancer_frontend_ip_configuration_id = (known after apply)
+          + name                                               = "internal"
+          + primary                                            = (known after apply)
+          + private_ip_address                                 = (known after apply)
+          + private_ip_address_allocation                      = "Dynamic"
+          + private_ip_address_version                         = "IPv4"
+          + public_ip_address_id                               = (known after apply)
+          + subnet_id                                          = (known after apply)
+        }
+    }
+
+  # azurerm_network_interface_backend_address_pool_association.provider will be created
+  + resource "azurerm_network_interface_backend_address_pool_association" "provider" {
+      + backend_address_pool_id = (known after apply)
+      + id                      = (known after apply)
+      + ip_configuration_name   = "internal"
+      + network_interface_id    = (known after apply)
+    }
+
+  # azurerm_network_interface_security_group_association.consumer_nsg will be created
+  + resource "azurerm_network_interface_security_group_association" "consumer_nsg" {
+      + id                        = (known after apply)
+      + network_interface_id      = (known after apply)
+      + network_security_group_id = (known after apply)
+    }
+
+  # azurerm_network_interface_security_group_association.provider_nsg will be created
+  + resource "azurerm_network_interface_security_group_association" "provider_nsg" {
+      + id                        = (known after apply)
+      + network_interface_id      = (known after apply)
+      + network_security_group_id = (known after apply)
+    }
+
+  # azurerm_network_security_group.consumer_nsg will be created
+  + resource "azurerm_network_security_group" "consumer_nsg" {
+      + id                  = (known after apply)
+      + location            = "northeurope"
+      + name                = "dev-pls-consumer-nsg"
+      + resource_group_name = "dev-pls-consumer-rg"
+      + security_rule       = [
+          + {
+              + access                                     = "Allow"
+              + destination_address_prefix                 = "*"
+              + destination_address_prefixes               = []
+              + destination_application_security_group_ids = []
+              + destination_port_range                     = "*"
+              + destination_port_ranges                    = []
+              + direction                                  = "Inbound"
+              + name                                       = "AllowICMP"
+              + priority                                   = 1003
+              + protocol                                   = "Icmp"
+              + source_address_prefix                      = "*"
+              + source_address_prefixes                    = []
+              + source_application_security_group_ids      = []
+              + source_port_range                          = "*"
+              + source_port_ranges                         = []
+                # (1 unchanged attribute hidden)
+            },
+          + {
+              + access                                     = "Allow"
+              + destination_address_prefix                 = "*"
+              + destination_address_prefixes               = []
+              + destination_application_security_group_ids = []
+              + destination_port_range                     = "22"
+              + destination_port_ranges                    = []
+              + direction                                  = "Inbound"
+              + name                                       = "SSH"
+              + priority                                   = 1001
+              + protocol                                   = "Tcp"
+              + source_address_prefix                      = "*"
+              + source_address_prefixes                    = []
+              + source_application_security_group_ids      = []
+              + source_port_range                          = "*"
+              + source_port_ranges                         = []
+                # (1 unchanged attribute hidden)
+            },
+          + {
+              + access                                     = "Allow"
+              + destination_address_prefix                 = "10.0.2.0/24"
+              + destination_address_prefixes               = []
+              + destination_application_security_group_ids = []
+              + destination_port_range                     = "*"
+              + destination_port_ranges                    = []
+              + direction                                  = "Outbound"
+              + name                                       = "AllowPrivateLink"
+              + priority                                   = 1002
+              + protocol                                   = "*"
+              + source_address_prefix                      = "*"
+              + source_address_prefixes                    = []
+              + source_application_security_group_ids      = []
+              + source_port_range                          = "*"
+              + source_port_ranges                         = []
+                # (1 unchanged attribute hidden)
+            },
+        ]
+    }
+
+  # azurerm_network_security_group.provider_nsg will be created
+  + resource "azurerm_network_security_group" "provider_nsg" {
+      + id                  = (known after apply)
+      + location            = "northeurope"
+      + name                = "dev-pls-provider-nsg"
+      + resource_group_name = "dev-pls-provider-rg"
+      + security_rule       = [
+          + {
+              + access                                     = "Allow"
+              + destination_address_prefix                 = "*"
+              + destination_address_prefixes               = []
+              + destination_application_security_group_ids = []
+              + destination_port_range                     = "*"
+              + destination_port_ranges                    = []
+              + direction                                  = "Inbound"
+              + name                                       = "AllowICMP"
+              + priority                                   = 1003
+              + protocol                                   = "Icmp"
+              + source_address_prefix                      = "*"
+              + source_address_prefixes                    = []
+              + source_application_security_group_ids      = []
+              + source_port_range                          = "*"
+              + source_port_ranges                         = []
+                # (1 unchanged attribute hidden)
+            },
+          + {
+              + access                                     = "Allow"
+              + destination_address_prefix                 = "*"
+              + destination_address_prefixes               = []
+              + destination_application_security_group_ids = []
+              + destination_port_range                     = "22"
+              + destination_port_ranges                    = []
+              + direction                                  = "Inbound"
+              + name                                       = "SSH"
+              + priority                                   = 1000
+              + protocol                                   = "Tcp"
+              + source_address_prefix                      = "*"
+              + source_address_prefixes                    = []
+              + source_application_security_group_ids      = []
+              + source_port_range                          = "*"
+              + source_port_ranges                         = []
+                # (1 unchanged attribute hidden)
+            },
+          + {
+              + access                                     = "Allow"
+              + destination_address_prefix                 = "*"
+              + destination_address_prefixes               = []
+              + destination_application_security_group_ids = []
+              + destination_port_range                     = "80"
+              + destination_port_ranges                    = []
+              + direction                                  = "Inbound"
+              + name                                       = "HTTP"
+              + priority                                   = 1001
+              + protocol                                   = "Tcp"
+              + source_address_prefix                      = "*"
+              + source_address_prefixes                    = []
+              + source_application_security_group_ids      = []
+              + source_port_range                          = "*"
+              + source_port_ranges                         = []
+                # (1 unchanged attribute hidden)
+            },
+          + {
+              + access                                     = "Allow"
+              + destination_address_prefix                 = "*"
+              + destination_address_prefixes               = []
+              + destination_application_security_group_ids = []
+              + destination_port_range                     = "80"
+              + destination_port_ranges                    = []
+              + direction                                  = "Inbound"
+              + name                                       = "LoadBalancerProbe"
+              + priority                                   = 1002
+              + protocol                                   = "Tcp"
+              + source_address_prefix                      = "AzureLoadBalancer"
+              + source_address_prefixes                    = []
+              + source_application_security_group_ids      = []
+              + source_port_range                          = "*"
+              + source_port_ranges                         = []
+                # (1 unchanged attribute hidden)
+            },
+        ]
+    }
+
+  # azurerm_private_endpoint.main will be created
+  + resource "azurerm_private_endpoint" "main" {
+      + custom_dns_configs       = (known after apply)
+      + id                       = (known after apply)
+      + location                 = "northeurope"
+      + name                     = "dev-pls-consumer-pe"
+      + network_interface        = (known after apply)
+      + private_dns_zone_configs = (known after apply)
+      + resource_group_name      = "dev-pls-consumer-rg"
+      + subnet_id                = (known after apply)
+
+      + private_service_connection {
+          + is_manual_connection           = false
+          + name                           = "pls-connection"
+          + private_connection_resource_id = (known after apply)
+          + private_ip_address             = (known after apply)
+        }
+    }
+
+  # azurerm_private_link_service.provider will be created
+  + resource "azurerm_private_link_service" "provider" {
+      + alias                                       = (known after apply)
+      + id                                          = (known after apply)
+      + load_balancer_frontend_ip_configuration_ids = (known after apply)
+      + location                                    = "northeurope"
+      + name                                        = "dev-pls-provider-private-link-service"
+      + resource_group_name                         = "dev-pls-provider-rg"
+
+      + nat_ip_configuration {
+          + name                       = "primary"
+          + primary                    = true
+          + private_ip_address_version = "IPv4"
+          + subnet_id                  = (known after apply)
+        }
+    }
+
+  # azurerm_public_ip.consumer_pip will be created
+  + resource "azurerm_public_ip" "consumer_pip" {
+      + allocation_method       = "Static"
+      + ddos_protection_mode    = "VirtualNetworkInherited"
+      + fqdn                    = (known after apply)
+      + id                      = (known after apply)
+      + idle_timeout_in_minutes = 4
+      + ip_address              = (known after apply)
+      + ip_version              = "IPv4"
+      + location                = "northeurope"
+      + name                    = "dev-pls-consumer-pip"
+      + resource_group_name     = "dev-pls-consumer-rg"
+      + sku                     = "Standard"
+      + sku_tier                = "Regional"
+    }
+
+  # azurerm_public_ip.provider_pip will be created
+  + resource "azurerm_public_ip" "provider_pip" {
+      + allocation_method       = "Static"
+      + ddos_protection_mode    = "VirtualNetworkInherited"
+      + fqdn                    = (known after apply)
+      + id                      = (known after apply)
+      + idle_timeout_in_minutes = 4
+      + ip_address              = (known after apply)
+      + ip_version              = "IPv4"
+      + location                = "northeurope"
+      + name                    = "dev-pls-provider-pip"
+      + resource_group_name     = "dev-pls-provider-rg"
+      + sku                     = "Standard"
+      + sku_tier                = "Regional"
+    }
+
+  # azurerm_resource_group.consumer will be created
+  + resource "azurerm_resource_group" "consumer" {
+      + id       = (known after apply)
+      + location = "northeurope"
+      + name     = "dev-pls-consumer-rg"
+    }
+
+  # azurerm_resource_group.provider will be created
+  + resource "azurerm_resource_group" "provider" {
+      + id       = (known after apply)
+      + location = "northeurope"
+      + name     = "dev-pls-provider-rg"
+    }
+
+  # azurerm_subnet.consumer_private_endpoint_subnet will be created
+  + resource "azurerm_subnet" "consumer_private_endpoint_subnet" {
+      + address_prefixes                              = [
+          + "10.0.2.0/24",
+        ]
+      + default_outbound_access_enabled               = true
+      + id                                            = (known after apply)
+      + name                                          = "dev-pls-consumer-pe-subnet"
+      + private_endpoint_network_policies             = "Disabled"
+      + private_link_service_network_policies_enabled = true
+      + resource_group_name                           = "dev-pls-consumer-rg"
+      + virtual_network_name                          = "dev-pls-consumer-vnet"
+    }
+
+  # azurerm_subnet.consumer_subnet will be created
+  + resource "azurerm_subnet" "consumer_subnet" {
+      + address_prefixes                              = [
+          + "10.0.1.0/24",
+        ]
+      + default_outbound_access_enabled               = true
+      + id                                            = (known after apply)
+      + name                                          = "dev-pls-consumer-subnet"
+      + private_endpoint_network_policies             = "Disabled"
+      + private_link_service_network_policies_enabled = true
+      + resource_group_name                           = "dev-pls-consumer-rg"
+      + virtual_network_name                          = "dev-pls-consumer-vnet"
+    }
+
+  # azurerm_subnet.load_balancer_subnet will be created
+  + resource "azurerm_subnet" "load_balancer_subnet" {
+      + address_prefixes                              = [
+          + "192.168.2.0/24",
+        ]
+      + default_outbound_access_enabled               = true
+      + id                                            = (known after apply)
+      + name                                          = "dev-pls-provider-lb-subnet"
+      + private_endpoint_network_policies             = "Disabled"
+      + private_link_service_network_policies_enabled = true
+      + resource_group_name                           = "dev-pls-provider-rg"
+      + virtual_network_name                          = "dev-pls-provider-vnet"
+    }
+
+  # azurerm_subnet.private_link_subnet will be created
+  + resource "azurerm_subnet" "private_link_subnet" {
+      + address_prefixes                              = [
+          + "192.168.3.0/24",
+        ]
+      + default_outbound_access_enabled               = true
+      + id                                            = (known after apply)
+      + name                                          = "dev-pls-provider-pl-subnet"
+      + private_endpoint_network_policies             = "Disabled"
+      + private_link_service_network_policies_enabled = false
+      + resource_group_name                           = "dev-pls-provider-rg"
+      + virtual_network_name                          = "dev-pls-provider-vnet"
+    }
+
+  # azurerm_subnet.subnet_provider will be created
+  + resource "azurerm_subnet" "subnet_provider" {
+      + address_prefixes                              = [
+          + "192.168.1.0/24",
+        ]
+      + default_outbound_access_enabled               = true
+      + id                                            = (known after apply)
+      + name                                          = "dev-pls-provider-subnet"
+      + private_endpoint_network_policies             = "Disabled"
+      + private_link_service_network_policies_enabled = true
+      + resource_group_name                           = "dev-pls-provider-rg"
+      + virtual_network_name                          = "dev-pls-provider-vnet"
+    }
+
+  # azurerm_virtual_network.consumer will be created
+  + resource "azurerm_virtual_network" "consumer" {
+      + address_space                  = [
+          + "10.0.0.0/16",
+        ]
+      + dns_servers                    = (known after apply)
+      + guid                           = (known after apply)
+      + id                             = (known after apply)
+      + location                       = "northeurope"
+      + name                           = "dev-pls-consumer-vnet"
+      + private_endpoint_vnet_policies = "Disabled"
+      + resource_group_name            = "dev-pls-consumer-rg"
+      + subnet                         = (known after apply)
+    }
+
+  # azurerm_virtual_network.provider will be created
+  + resource "azurerm_virtual_network" "provider" {
+      + address_space                  = [
+          + "192.168.0.0/16",
+        ]
+      + dns_servers                    = (known after apply)
+      + guid                           = (known after apply)
+      + id                             = (known after apply)
+      + location                       = "northeurope"
+      + name                           = "dev-pls-provider-vnet"
+      + private_endpoint_vnet_policies = "Disabled"
+      + resource_group_name            = "dev-pls-provider-rg"
+      + subnet                         = (known after apply)
+    }
+
+Plan: 26 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  + load_balancer_private_ip = (known after apply)
+  + private_endpoint_ip      = (known after apply)
+  + ssh_command_vm_consumer  = (known after apply)
+  + ssh_command_vm_provider  = (known after apply)
+  + test_command             = (known after apply)
+  + vm_consumer_private_ip   = (known after apply)
+  + vm_consumer_public_ip    = (known after apply)
+  + vm_provider_private_ip   = (known after apply)
+  + vm_provider_public_ip    = (known after apply)
