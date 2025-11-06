@@ -19,22 +19,8 @@ resource "azurerm_network_security_group" "consumer_nsg" {
   location            = azurerm_resource_group.consumer.location
   resource_group_name = azurerm_resource_group.consumer.name
 
-  # Inbound rule - Allow ICMP
   security_rule {
-    name                       = "AllowICMP"
-    priority                   = 1003
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Icmp"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
-  # Inbound rule - Allow SSH (TCP 22)
-  security_rule {
-    name                       = "SSH"
+    name                       = "Allow-SSH-In"
     priority                   = 1001
     direction                  = "Inbound"
     access                     = "Allow"
@@ -45,17 +31,40 @@ resource "azurerm_network_security_group" "consumer_nsg" {
     destination_address_prefix = "*"
   }
 
-  # Outbound rule - Allow traffic to Private Link subnet
-  security_rule {
-    name                       = "AllowPrivateLink"
+   security_rule {
+    name                       = "Allow-SSH-To-Provider-VM"
     priority                   = 1002
     direction                  = "Outbound"
     access                     = "Allow"
-    protocol                   = "*"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+    security_rule {
+    name                       = "Allow-Http-Out"
+    priority                   = 1003
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "80"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "Allow-ICMP-In"
+    priority                   = 1004
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Icmp"
     source_port_range          = "*"
     destination_port_range     = "*"
     source_address_prefix      = "*"
-    destination_address_prefix = "10.0.2.0/24"
+    destination_address_prefix = "*"
   }
 }
 
@@ -66,7 +75,7 @@ resource "azurerm_network_interface_security_group_association" "consumer_nsg" {
 
 
 # PRIVATE ENDPOINT FOR CONSUMER
-resource "azurerm_subnet" "consumer_private_endpoint_subnet" {
+resource "azurerm_subnet" "consumer_pe_subnet" {
   name                              = "${var.prefix_name}-consumer-pe-subnet"
   resource_group_name               = azurerm_resource_group.consumer.name
   virtual_network_name              = azurerm_virtual_network.consumer.name
@@ -78,7 +87,7 @@ resource "azurerm_private_endpoint" "main" {
   name                = "${var.prefix_name}-consumer-pe"
   location            = azurerm_resource_group.consumer.location
   resource_group_name = azurerm_resource_group.consumer.name
-  subnet_id           = azurerm_subnet.consumer_private_endpoint_subnet.id
+  subnet_id           = azurerm_subnet.consumer_pe_subnet.id
 
   private_service_connection {
     name                           = "pls-connection"
@@ -170,22 +179,8 @@ resource "azurerm_network_security_group" "provider_nsg" {
   location            = azurerm_resource_group.provider.location
   resource_group_name = azurerm_resource_group.provider.name
 
-  # Inbound rule - Allow ICMP
   security_rule {
-    name                       = "AllowICMP"
-    priority                   = 1003
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Icmp"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
-  # Inbound rule - Allow SSH (TCP 22)
-  security_rule {
-    name                       = "SSH"
+    name                       = "Allow-SSH-In"
     priority                   = 1000
     direction                  = "Inbound"
     access                     = "Allow"
@@ -196,10 +191,9 @@ resource "azurerm_network_security_group" "provider_nsg" {
     destination_address_prefix = "*"
   }
 
-  # Inbound rule - Allow HTTP (TCP 80)
   security_rule {
-    name                       = "HTTP"
-    priority                   = 1001
+    name                       = "Allow-HTTP-In"
+    priority                   = 1002
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
@@ -209,16 +203,15 @@ resource "azurerm_network_security_group" "provider_nsg" {
     destination_address_prefix = "*"
   }
 
-  # Inbound rule - Allow Load Balancer Probe (TCP 80)
-  security_rule {
-    name                       = "LoadBalancerProbe"
-    priority                   = 1002
+    security_rule {
+    name                       = "Allow-ICMP-In"
+    priority                   = 1003
     direction                  = "Inbound"
     access                     = "Allow"
-    protocol                   = "Tcp"
+    protocol                   = "Icmp"
     source_port_range          = "*"
-    destination_port_range     = "80"
-    source_address_prefix      = "AzureLoadBalancer"
+    destination_port_range     = "*"
+    source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
 }
@@ -271,6 +264,15 @@ resource "azurerm_lb_probe" "http" {
   probe_threshold     = 1
 }
 
+resource "azurerm_lb_probe" "ssh" {
+  name                = "${var.prefix_name}ssh-probe"
+  loadbalancer_id     = azurerm_lb.main.id
+  protocol            = "Tcp"
+  port                = 22
+  interval_in_seconds = 5
+  number_of_probes    = 2
+}
+
 resource "azurerm_lb_rule" "http" {
   name                           = "${var.prefix_name}-http-rule"
   loadbalancer_id                = azurerm_lb.main.id
@@ -280,10 +282,21 @@ resource "azurerm_lb_rule" "http" {
   frontend_ip_configuration_name = azurerm_lb.main.frontend_ip_configuration[0].name
   backend_address_pool_ids       = [azurerm_lb_backend_address_pool.main.id]
   probe_id                       = azurerm_lb_probe.http.id
-
   idle_timeout_in_minutes = 4
   load_distribution       = "Default"
   disable_outbound_snat   = false
+}
+
+resource "azurerm_lb_rule" "ssh_rule" {
+  name                           = "${var.prefix_name}-ssh-rule"
+  loadbalancer_id                = azurerm_lb.main.id
+  protocol                       = "Tcp"
+  frontend_port                  = 22
+  backend_port                   = 22
+  frontend_ip_configuration_name = azurerm_lb.main.frontend_ip_configuration[0].name
+  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.main.id]
+  probe_id                       = azurerm_lb_probe.ssh.id
+  disable_outbound_snat          = true
 }
 
 # PRIVATE LINK SERVICE FOR PROVIDER
