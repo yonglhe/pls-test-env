@@ -91,7 +91,7 @@ resource "azurerm_private_endpoint" "main" {
 
   private_service_connection {
     name                           = "pls-connection"
-    private_connection_resource_id = azurerm_private_link_service.provider.id
+    private_connection_resource_id = module.azurerm_private_link_service.id
     is_manual_connection           = false
   }
 }
@@ -308,20 +308,46 @@ resource "azurerm_subnet" "private_link_subnet" {
   private_link_service_network_policies_enabled = false
 }
 
-resource "azurerm_private_link_service" "provider" {
+# resource "azurerm_private_link_service" "provider" {
+#   name                = "${var.prefix_name}-provider-private-link-service"
+#   location            = azurerm_resource_group.provider.location
+#   resource_group_name = azurerm_resource_group.provider.name
+#   # auto_approval_subscription_ids = [data.azurerm_client_config.current.subscription_id] # optional
+
+#   nat_ip_configuration {
+#     name                       = "primary"
+#     primary                    = true
+#     private_ip_address_version = "IPv4"
+#     subnet_id                  = azurerm_subnet.private_link_subnet.id
+#   }
+
+#   load_balancer_frontend_ip_configuration_ids = [azurerm_lb.main.frontend_ip_configuration[0].id]
+# }
+
+module "azurerm_private_link_service" {
+  source = "/mnt/c/Users/yhe/terraform-azure/core/core-terraform-azurerm-avm-res-network-privatelinkservice/"
+
   name                = "${var.prefix_name}-provider-private-link-service"
-  location            = azurerm_resource_group.provider.location
   resource_group_name = azurerm_resource_group.provider.name
-  # auto_approval_subscription_ids = [data.azurerm_client_config.current.subscription_id] # optional
+  location            = azurerm_resource_group.provider.location
+  # enable_proxy_protocol = false
 
-  nat_ip_configuration {
-    name                       = "primary"
-    primary                    = true
-    private_ip_address_version = "IPv4"
-    subnet_id                  = azurerm_subnet.private_link_subnet.id
-  }
+  load_balancer_frontend_ip_configuration_ids = [
+    azurerm_lb.main.frontend_ip_configuration[0].id
+    ]
 
-  load_balancer_frontend_ip_configuration_ids = [azurerm_lb.main.frontend_ip_configuration[0].id]
+  visibility_subscription_ids = ["fa149c5d-7408-4687-8c05-0741bb84b780", "13c615cb-0b72-4c8d-911a-a4b587dadcba"]
+  auto_approval_subscription_ids = ["fa149c5d-7408-4687-8c05-0741bb84b780", "13c615cb-0b72-4c8d-911a-a4b587dadcba"]
+
+  nat_ip_configurations = [
+    {
+      name                       = "primary"
+      subnet_id                  = azurerm_subnet.private_link_subnet.id
+      primary                    = true
+      private_ip_address_version = "IPv4"
+      private_ip_address         = "192.168.3.4"
+    }
+  ]
 }
 
 
