@@ -308,36 +308,16 @@ resource "azurerm_subnet" "private_link_subnet" {
   private_link_service_network_policies_enabled = false
 }
 
-# resource "azurerm_private_link_service" "provider" {
-#   name                = "${var.prefix_name}-provider-private-link-service"
-#   location            = azurerm_resource_group.provider.location
-#   resource_group_name = azurerm_resource_group.provider.name
-#   # auto_approval_subscription_ids = [data.azurerm_client_config.current.subscription_id] # optional
-
-#   nat_ip_configuration {
-#     name                       = "primary"
-#     primary                    = true
-#     private_ip_address_version = "IPv4"
-#     subnet_id                  = azurerm_subnet.private_link_subnet.id
-#   }
-
-#   load_balancer_frontend_ip_configuration_ids = [azurerm_lb.main.frontend_ip_configuration[0].id]
-# }
-
 module "azurerm_private_link_service" {
   source = "/mnt/c/Users/yhe/terraform-azure/core/core-terraform-azurerm-avm-res-network-privatelinkservice/"
 
   name                = "${var.prefix_name}-provider-private-link-service"
   resource_group_name = azurerm_resource_group.provider.name
   location            = azurerm_resource_group.provider.location
-  # enable_proxy_protocol = false
 
   load_balancer_frontend_ip_configuration_ids = [
     azurerm_lb.main.frontend_ip_configuration[0].id
     ]
-
-  visibility_subscription_ids = ["fa149c5d-7408-4687-8c05-0741bb84b780", "13c615cb-0b72-4c8d-911a-a4b587dadcba"]
-  auto_approval_subscription_ids = ["fa149c5d-7408-4687-8c05-0741bb84b780", "13c615cb-0b72-4c8d-911a-a4b587dadcba"]
 
   nat_ip_configurations = [
     {
