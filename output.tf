@@ -43,15 +43,15 @@ output "test_command" {
   value       = "curl http://${azurerm_private_endpoint.main.private_service_connection[0].private_ip_address}"
 }
 
-output "visibility_subscription_ids" {
-  description = "The list of subscription IDs that have visibility to the Private Link Service."
-  value = module.azurerm_private_link_service.visibility_subscription_ids
-}
+# output "visibility_subscription_ids" {
+#   description = "The list of subscription IDs that have visibility to the Private Link Service."
+#   value = module.azurerm_private_link_service.visibility_subscription_ids
+# }
 
-output "auto_approval_subscription_ids" {
-  description = "The list of subscription IDs that have auto approval to the Private Link Service."
-  value = module.azurerm_private_link_service.auto_approval_subscription_ids
-}
+# output "auto_approval_subscription_ids" {
+#   description = "The list of subscription IDs that have auto approval to the Private Link Service."
+#   value = module.azurerm_private_link_service.auto_approval_subscription_ids
+# }
 
 output "pls_resource_output" {
   value = module.azurerm_private_link_service.resource

@@ -155,6 +155,29 @@ resource "azurerm_linux_virtual_machine" "consumer" {
   }
 }
 
+module "avm-res-network-privatednszone" {
+  source  = "Azure/avm-res-network-privatednszone/azurerm"
+  version = "0.4.3"
+  
+  domain_name           = "privatelink.provider"
+  parent_id             = azurerm_resource_group.consumer.id
+
+  a_records = {
+    pls_alias = {
+      name                 = "azure"
+      ttl                  = 300
+      ip_addresses = [azurerm_private_endpoint.main.private_service_connection[0].private_ip_address]
+    }
+  }
+  virtual_network_links = {
+      vnetlink1 = {
+      name                 = "my-vnet-link"
+      virtual_network_id   = azurerm_virtual_network.consumer.id
+      registration_enabled = true
+      autoregistration     = false
+    }
+  }
+}
 
 
 ###############################
