@@ -11,5 +11,6 @@ terraform {
 
 provider "azurerm" {
   features {
+    # Add Azure subscription for testing
   }
 }   
