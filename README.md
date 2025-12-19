@@ -13,10 +13,20 @@ Before deploying the infrastructure, ensure you have:
 - An active Azure subscription
 - Baic permissions on the target subscription
 - Terraform >= 1.14.0
-- Azure CLI installed and authenticated
+- Azure CLI installed and authenticated (```az login```)
+- SSH Keys
+
+
+Two SSH key pairs are required for accessing the virtual machines deployed in this infrastructure:
+
+- **Consumer SSH key** – used for the consumer-side virtual machine
+- **Provider SSH key** – used for the provider-side virtual machine
+
+Generate the SSH keys using the following commands:
 
 ```bash
-az login
+ssh-keygen -t rsa -b 4096 -f ~/.ssh/consumer_vm_key
+ssh-keygen -t rsa -b 4096 -f ~/.ssh/provider_vm_key
 ```
 
 ## Deployment
